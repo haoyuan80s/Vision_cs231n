@@ -1,7 +1,9 @@
 import numpy as np
 from random import shuffle
 from past.builtins import xrange
-
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
 def softmax_loss_naive(W, X, y, reg):
   """
   Softmax loss function, naive implementation (with loops)
@@ -20,23 +22,8 @@ def softmax_loss_naive(W, X, y, reg):
   - loss as single float
   - gradient with respect to weights W; an array of same shape as W
   """
-  # Initialize the loss and gradient to zero.
-  loss = 0.0
-  dW = np.zeros_like(W)
-
-  #############################################################################
-  # TODO: Compute the softmax loss and its gradient using explicit loops.     #
-  # Store the loss in loss and the gradient in dW. If you are not careful     #
-  # here, it is easy to run into numeric instability. Don't forget the        #
-  # regularization!                                                           #
-  #############################################################################
-  pass
-  #############################################################################
-  #                          END OF YOUR CODE                                 #
-  #############################################################################
-
+  loss, dW =   softmax_loss_vectorized(W, X, y, reg)
   return loss, dW
-
 
 def softmax_loss_vectorized(W, X, y, reg):
   """
@@ -44,20 +31,20 @@ def softmax_loss_vectorized(W, X, y, reg):
 
   Inputs and outputs are the same as softmax_loss_naive.
   """
-  # Initialize the loss and gradient to zero.
   loss = 0.0
-  dW = np.zeros_like(W)
+  N,D = X.shpae
+  _,K = W.shape
+  X = Variable(torch.ones(N, D))
+  y = np.ones([N, 1])
+  W = Variable(torch.ones(D, K), requires_grad = True)
+  P = F.softmax(X.mm(W))
 
-  #############################################################################
-  # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
-  # Store the loss in loss and the gradient in dW. If you are not careful     #
-  # here, it is easy to run into numeric instability. Don't forget the        #
-  # regularization!                                                           #
-  #############################################################################
-  pass
-  #############################################################################
-  #                          END OF YOUR CODE                                 #
-  #############################################################################
+  for j in return ange(N):
+    loss += P[j,int(y[j])]
 
-  return loss, dW
+  loss += torch.sum(reg*W*W)
+  loss.backward()
+  dW = W.grad
+
+  return loss.numpy(), dW.numpy()
 
